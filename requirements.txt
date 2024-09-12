@@ -241,7 +241,7 @@ pyttsx3==2.90
 pytweening==1.2.0
 pytz==2024.1
 pywhatkit==5.4
-pywin32==306
+pywin32==306; platform_system == 'Windows'
 pywin32-ctypes==0.2.2
 pywinpty==2.0.13
 pyxlsb==1.0.10

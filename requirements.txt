@@ -13,6 +13,7 @@ astunparse==1.6.3
 async-lru==2.0.4
 attrs==23.2.0
 audioread==3.0.1
+Python==3.12.3
 av==12.3.0
 awscli==1.33.40
 babel==2.16.0

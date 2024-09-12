@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Search</title>
+    <link href="https://fonts.googleapis.com/css?family=Inconsolata:700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> <!-- Font Awesome CDN -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Inconsolata', monospace;
+            background: #1e1e1e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 450px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            opacity: 0;
+            transform: translateY(-50px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 50px;
+            border: none;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-bar input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .search-bar input:focus {
+            background: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .search-bar button {
+            position: absolute;
+            right: 10px;
+            background: crimson;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background: #ff7b7b;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .search-bar button i {
+            color: #fff;
+            font-size: 1.2rem;
+        }
+
+        .results {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+            color: #fff;
+            text-align: left;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .results.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .results h2 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .results table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results th, .results td {
+            padding: 12px;
+            border: 1px solid #555;
+        }
+
+        .results th {
+            background: #444;
+            color: #fff;
+        }
+
+        .results td {
+            background: #333;
+            color: #ddd;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #444;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: #555;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .loading .spinner {
+            border: 8px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top: 8px solid crimson;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container show">
+        <h1>Product Search</h1>
+        <div class="search-bar">
+            <form id="search-form" method="POST" action="/search">
+                <input type="text" placeholder="Enter product description..." name="query" required>
+                <button type="submit">
+                    <i class="fa fa-search"></i>
+                </button>
+            </form>
+        </div>
+
+        {% if query %}
+        <div class="results show">
+            <h2>Search Results for: "{{ query }}"</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Subcategory</th>
+                        <th>Similarity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td>{{ result.product_name }}</td>
+                        <td>{{ result.category }}</td>
+                        <td>{{ result.subcategory }}</td>
+                        <td>{{ result.similarity }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <a href="/" class="back-button">Back to Search</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('search-form');
+        const loading = document.getElementById('loading');
+        const container = document.querySelector('.container');
+        const results = document.querySelector('.results');
+
+        form.addEventListener('submit', function() {
+            loading.classList.add('show');
+            container.classList.remove('show');
+        });
+
+        // Simulate loading complete after 1.5 seconds (adjust this as necessary)
+        setTimeout(() => {
+            loading.classList.remove('show');
+            container.classList.add('show');
+            results.classList.add('show');
+        }, 1500); // Adjust timing to match server response time
+    </script>
+
+</body>
+</html>
